@@ -1,0 +1,41 @@
+{
+  "endpoint": "GET /batch/:fileId/status",
+  "aliases": ["GET /.netlify/functions/batchStatus/:fileId"],
+  "description": "Check batch job status for a uploaded file. Axon picks from NGFT and triggers batch processing.",
+  "stateTransitions": {
+    "successPath": ["QUEUED", "PICKED", "PROCESSED"],
+    "failurePath": ["QUEUED", "PICKED", "FAILED"]
+  },
+  "determinism": {
+    "rule": "State is determined by fileId: IDs ending in 7 or 3, or containing FAIL → FAILED. All others → PROCESSED.",
+    "overrideParam": "?force=FAILED or ?force=PROCESSED to override"
+  },
+  "response": {
+    "schema": {
+      "fileId": "string",
+      "currentState": "QUEUED | PICKED | PROCESSED | FAILED",
+      "stateFlow": ["QUEUED", "PICKED", "PROCESSED"],
+      "pollIntervalMs": "integer (0 if terminal)",
+      "terminal": "boolean",
+      "timestamp": "ISO 8601"
+    },
+    "examples": {
+      "processed": {
+        "fileId": "NGFT-1002-settleme",
+        "currentState": "PROCESSED",
+        "stateFlow": ["QUEUED", "PICKED", "PROCESSED"],
+        "pollIntervalMs": 0,
+        "terminal": true,
+        "timestamp": "2026-03-16T10:05:00.000Z"
+      },
+      "failed": {
+        "fileId": "NGFT-1003-testFAIL",
+        "currentState": "FAILED",
+        "stateFlow": ["QUEUED", "PICKED", "FAILED"],
+        "pollIntervalMs": 0,
+        "terminal": true,
+        "timestamp": "2026-03-16T10:05:00.000Z"
+      }
+    }
+  }
+}

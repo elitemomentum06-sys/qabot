@@ -1,0 +1,56 @@
+{
+  "endpoint": "POST /upload",
+  "aliases": ["POST /.netlify/functions/upload"],
+  "description": "Upload an ISO file to the mock NGFT service",
+  "request": {
+    "method": "POST",
+    "contentType": "application/json",
+    "schema": {
+      "type": "object",
+      "required": ["filename", "contentHash", "isoType"],
+      "properties": {
+        "fileId": { "type": "string", "description": "Optional custom file ID" },
+        "filename": { "type": "string", "description": "Name of the ISO file" },
+        "sizeBytes": { "type": "integer", "description": "File size in bytes" },
+        "contentHash": { "type": "string", "description": "SHA256 hash of file content" },
+        "isoType": { "type": "string", "enum": ["ISO20022"], "description": "Must be ISO20022" },
+        "meta": { "type": "object", "description": "Optional metadata" }
+      }
+    },
+    "example": {
+      "filename": "settlement_20260316.xml",
+      "sizeBytes": 24500,
+      "contentHash": "abc123def456",
+      "isoType": "ISO20022"
+    }
+  },
+  "responses": {
+    "200": {
+      "description": "File queued successfully",
+      "example": {
+        "status": "QUEUED",
+        "fileId": "NGFT-1001-settleme",
+        "filename": "settlement_20260316.xml",
+        "contentHash": "abc123def456",
+        "queueTimeUtc": "2026-03-16T10:00:00.000Z",
+        "next": "/batch/NGFT-1001-settleme/status"
+      }
+    },
+    "400_missing_field": {
+      "description": "Missing required field",
+      "example": { "status": "REJECTED", "code": "INVALID_REQUEST", "reason": "Missing required field: filename" }
+    },
+    "400_invalid_iso": {
+      "description": "Invalid ISO type",
+      "example": { "status": "REJECTED", "code": "INVALID_ISO", "reason": "isoType must be ISO20022, got: ISO8583" }
+    },
+    "409_duplicate": {
+      "description": "Duplicate content hash",
+      "example": { "status": "DUPLICATE", "code": "DUPLICATE", "reason": "contentHash abc123def456 already uploaded" }
+    },
+    "500_forced": {
+      "description": "Forced server error (use ?force500=true)",
+      "example": { "status": "UNAVAILABLE", "code": "SERVER_ERROR", "reason": "Forced 500 for testing" }
+    }
+  }
+}

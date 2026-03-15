@@ -1,0 +1,13 @@
+{
+  "name": "qabot-mock-server",
+  "version": "1.0.0",
+  "description": "Mock NGFT/Axon batch pipeline for QA test generation",
+  "scripts": {
+    "dev": "netlify dev",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
